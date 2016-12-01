@@ -1,0 +1,74 @@
+class MainClass;
+
+class FindEvidenceDialogClass: DialogClass {
+  MainClass Main;
+  PathEditClass PathEdit;
+  ListEditClass ListEdit;
+  DirRootClass DirRoot;
+  NameListClass FileList;
+
+  FindEvidenceDialogClass(DialogClass parent, MainClass main) :
+    DialogClass(parent, "Evidence Selection Dialog"),
+    Main = main,
+    PathEdit(this, "Evidence directory", START, START, 200, 12, 0, main.EvidenceDirectory, FOLDEROPEN),
+    ListEdit(this, "Files in directory", SAME, NEXT, 150, 75, 0, main.FileList, ContextClass::CANCHECK),
+    DirRoot(LocalMachine),
+    FileList = main.FileList
+  {}
+
+  virtual void ChildEvent(const EventClass &evt) {
+    DialogClass::ChildEvent(evt);
+    if (PathEdit.Matches(evt)) {
+      String newPath = PathEdit.GetText();
+      DirectoryClass dir();
+      FileList = new NameListClass();
+      if (DirRoot.GetListing(newPath, dir)) {
+        foreach (DirectoryClass file in dir) {
+          new NameListClass(FileList, file.FullPath());
+          ListEdit.SetDataRoot(FileList);
+        }
+      }
+    }
+  }
+}
+
+class MainClass {
+  String EvidenceDirectory;
+  NameListClass FileList;
+
+  MainClass() :
+    FileList()
+  {}
+
+  void Main() {
+
+    FindEvidenceDialogClass diag(null, this);
+    if (diag.Execute() == SystemClass::OK) {
+      Console.WriteLine("Path selected: " + EvidenceDirectory);
+      foreach(NodeClass node in FileList) {
+        // TODO: This doesn't work yet
+        Console.WriteLine("File: " + node.Name());
+      }
+    }
+/*
+    String evidencePath = "E:\\ev\\WinLabRaw_2.img";
+    String savePath = "E:\\case\\NewCase.case";
+    CaseClass newCase(null, "This is a case created by Enscript");
+
+    EvidenceClass ev();
+    EvidencePathClass evPath(ev.EvidencePathRoot(), evidencePath);
+    ev.SetOpenMode(EvidenceClass::OPENRAWIMAGE);
+    EvidenceOpenClass evOpen();
+    ev.AddToCase(newCase, evOpen);
+
+    if (newCase.Write(savePath)) {
+      Console.WriteLine(String::Format("Success, case saved to {0}", savePath));
+    }
+    else {
+      Console.WriteLine(String::Format("Failed to save the case to {0}", savePath));
+    }
+*/
+
+
+  }
+}
