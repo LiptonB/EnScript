@@ -3,7 +3,6 @@ class MainClass;
 class FindEvidenceDialogClass: DialogClass {
   MainClass Main;
   PathEditClass EvidenceDirectoryEdit;
-  PathEditClass CaseFileEdit;
   ListEditClass ListEdit;
   DirRootClass DirRoot;
 
@@ -12,7 +11,6 @@ class FindEvidenceDialogClass: DialogClass {
     Main = main,
     EvidenceDirectoryEdit(this, "Evidence directory", START, START, 200, 12, 0, main.EvidenceDirectory, FOLDEROPEN),
     ListEdit(this, "Files in directory", START, NEXT, 200, 75, 0, main.FileList, ContextClass::CANCHECK),
-    CaseFileEdit(this, "Case file", START, NEXT, 200, 12, 0, main.CaseFile, FILECREATE, "EnCase case files\t*.case\tAll Files\t*.*\t"),
     DirRoot(LocalMachine)
   {}
 
@@ -36,15 +34,20 @@ class FindEvidenceDialogClass: DialogClass {
 class MainClass {
   String EvidenceDirectory;
   NameListClass FileList;
-  String CaseFile;
 
   MainClass() :
     FileList()
   {}
 
-  void Main() {
+  void Main(CaseClass c) {
 
     FindEvidenceDialogClass diag(null, this);
+
+    if (!c) {
+      diag.ErrorMessage("Please open a case first");
+      return;
+    }
+
     if (diag.Execute() == SystemClass::OK) {
       Console.WriteLine("Path selected: " + EvidenceDirectory);
       foreach(NodeClass node in FileList) {
@@ -53,8 +56,6 @@ class MainClass {
         }
       }
     }
-
-    CaseClass newCase(null, "This is a case created by Enscript");
 
     foreach (NodeClass node in FileList) {
       if (node.IsSelected()) {
@@ -73,18 +74,12 @@ class MainClass {
           Console.WriteLine("Skipping " + filename + " - unknown extension");
           continue;
         }
-        if (ev.AddToCase(newCase, evOpen)) {
+        if (ev.AddToCase(c, evOpen)) {
           Console.WriteLine("Added " + filename + " to case successfully");
         } else {
           Console.WriteLine("Could not add " + filename + " to case");
         }
       }
-    }
-
-    if (newCase.Write(CaseFile)) {
-      Console.WriteLine(String::Format("Success, case saved to {0}", CaseFile));
-    } else {
-      Console.WriteLine(String::Format("Failed to save the case to {0}", CaseFile));
     }
   }
 }
