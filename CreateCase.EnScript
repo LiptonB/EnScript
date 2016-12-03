@@ -2,32 +2,33 @@ class MainClass;
 
 class FindEvidenceDialogClass: DialogClass {
   MainClass Main;
-  PathEditClass PathEdit;
+  PathEditClass EvidenceDirectoryEdit;
+  PathEditClass CaseFileEdit;
   ListEditClass ListEdit;
   DirRootClass DirRoot;
-  NameListClass FileList;
 
   FindEvidenceDialogClass(DialogClass parent, MainClass main) :
     DialogClass(parent, "Evidence Selection Dialog"),
     Main = main,
-    PathEdit(this, "Evidence directory", START, START, 200, 12, 0, main.EvidenceDirectory, FOLDEROPEN),
-    ListEdit(this, "Files in directory", SAME, NEXT, 150, 75, 0, main.FileList, ContextClass::CANCHECK),
-    DirRoot(LocalMachine),
-    FileList = main.FileList
+    EvidenceDirectoryEdit(this, "Evidence directory", START, START, 200, 12, 0, main.EvidenceDirectory, FOLDEROPEN),
+    ListEdit(this, "Files in directory", START, NEXT, 200, 75, 0, main.FileList, ContextClass::CANCHECK),
+    CaseFileEdit(this, "Case file", START, NEXT, 200, 12, 0, main.CaseFile, FILECREATE, "EnCase case files\t*.case\tAll Files\t*.*\t"),
+    DirRoot(LocalMachine)
   {}
 
   virtual void ChildEvent(const EventClass &evt) {
     DialogClass::ChildEvent(evt);
-    if (PathEdit.Matches(evt)) {
-      String newPath = PathEdit.GetText();
+    if (EvidenceDirectoryEdit.Matches(evt)) {
+      String newPath = EvidenceDirectoryEdit.GetText();
       DirectoryClass dir();
-      FileList = new NameListClass();
+      NameListClass FileList();
       if (DirRoot.GetListing(newPath, dir)) {
         foreach (DirectoryClass file in dir) {
           new NameListClass(FileList, file.FullPath());
-          ListEdit.SetDataRoot(FileList);
         }
       }
+      ListEdit.SetDataRoot(FileList);
+      Main.FileList = FileList;
     }
   }
 }
@@ -35,6 +36,7 @@ class FindEvidenceDialogClass: DialogClass {
 class MainClass {
   String EvidenceDirectory;
   NameListClass FileList;
+  String CaseFile;
 
   MainClass() :
     FileList()
@@ -46,31 +48,49 @@ class MainClass {
     if (diag.Execute() == SystemClass::OK) {
       Console.WriteLine("Path selected: " + EvidenceDirectory);
       foreach(NodeClass node in FileList) {
-        // TODO: This doesn't work yet
-        Console.WriteLine("File: " + node.Name());
+        if (node.IsSelected()) {
+          Console.WriteLine("Selected File: " + node.Name());
+        }
       }
     }
-/*
-    String evidencePath = "E:\\ev\\WinLabRaw_2.img";
-    String savePath = "E:\\case\\NewCase.case";
+
     CaseClass newCase(null, "This is a case created by Enscript");
 
-    EvidenceClass ev();
-    EvidencePathClass evPath(ev.EvidencePathRoot(), evidencePath);
-    ev.SetOpenMode(EvidenceClass::OPENRAWIMAGE);
-    EvidenceOpenClass evOpen();
-    ev.AddToCase(newCase, evOpen);
+    foreach (NodeClass node in FileList) {
+      if (node.IsSelected()) {
+        String filename = EvidenceDirectory +
+          (EvidenceDirectory.SubString(EvidenceDirectory.GetLength() - 1, 1) == "\\" ? "" : "\\") +
+          node.Name();
+        EvidenceClass ev();
+        EvidencePathClass evPath(ev.EvidencePathRoot(), filename);
+        EvidenceOpenClass evOpen();
+        String extension = filename.GetFileExt();
+        if (extension == "img") {
+          ev.SetOpenMode(EvidenceClass::OPENRAWIMAGE);
+        } else if (extension == "E01") {
+          ev.SetOpenMode(EvidenceClass::OPENEVIDENCEFILE);
+        } else {
+          Console.WriteLine("Skipping " + filename + " - unknown extension");
+          continue;
+        }
+        if (ev.AddToCase(newCase, evOpen)) {
+          Console.WriteLine("Added " + filename + " to case successfully");
+        } else {
+          Console.WriteLine("Could not add " + filename + " to case");
+        }
+      }
+    }
 
-    if (newCase.Write(savePath)) {
-      Console.WriteLine(String::Format("Success, case saved to {0}", savePath));
+    if (newCase.Write(CaseFile)) {
+      Console.WriteLine(String::Format("Success, case saved to {0}", CaseFile));
+    } else {
+      Console.WriteLine(String::Format("Failed to save the case to {0}", CaseFile));
     }
-    else {
-      Console.WriteLine(String::Format("Failed to save the case to {0}", savePath));
-    }
-*/
   }
 }
+
 //This Code will search for the files with the extention of SPL and export the file to c:\temo directory, if the file content is ANSI the code will also display that on console
+/*
 class MainClass {
   void Main(CaseClass c) {
     int notWorks;
@@ -106,3 +126,4 @@ class MainClass {
     }
   }
 }
+*/
