@@ -122,3 +122,67 @@ class MainClass {
   }
 }
 */
+//this function will create hash from selected files and put them in c:\temp
+/*
+class MainClass {
+  void Main(CaseClass c) {
+    Hash2LibraryClass::Hash2LibraryBuilderClass builder();
+    //change C:\temp to the directory you want the HashLibrary stored
+    if (builder.Open("C:\\temp\\", Hash2LibraryClass::Hash2LibraryBuilderClass::OT_CREATE)) {
+      Hash2SetClass newSet("Interesting Files");
+      if (builder.AddNewHashSet(newSet)) { // add the new hash set to the LibraryBuilder
+        HashClass md5();
+        SHA1Class sha1();
+        for(ItemIteratorClass iter(c, 0, ItemIteratorClass::CURRENTVIEW_SELECTED); EntryClass e = iter.GetNextEntry();) {
+          //populate the hash set
+          Hash2ItemClass newItem();
+          EntryFileClass ef();
+          ef.Open(e);
+          //compute hash values
+          ef.ComputeMD5(md5);
+          ef.ComputeSHA1(sha1);
+          //set the hashes in the Hash2ItemClass
+          newItem.SetMD5(md5);
+          newItem.SetSHA1(sha1);
+          newItem.SetLogicalSize(e.LogicalSize());
+          //add new item to the set
+          newSet.Add(builder, newItem);
+        }
+      }
+    }
+  }
+}
+*/
+
+//This functionw will look for assigned file in the registry
+/*
+class MainClass {
+
+  void RunRegistry(CaseClass c, EntryClass e) {
+    RegistryClass reg(e);
+    RegCommandClass cmds();
+    new RegCommandClass(cmds, "Command Two", RegCommandClass::READKEY,
+      RegCommandClass::HKEY_CURRENT_USER, "", "", 0, 2);
+    RegValueClass values();
+    if (reg.Run(cmds, values)) {
+      BookmarkClass folder(c.BookmarkRoot(), "Reg", NodeClass::FOLDER);
+      BookmarkDataClass newData(folder);
+      newData.SetRoot(values);
+    }
+  }
+
+  void Main(CaseClass c) {
+    if (c) {
+      for(ItemIteratorClass iter(c); EntryClass e=iter.GetNextEntry();) {
+        if (e.Name().Compare("ntuser.dat") == 0) {
+          Console.WriteLine("Registry On " +  e.ItemPath());
+          RunRegistry(c, e);
+          break;
+        }
+      }
+    }
+    else
+      Console.WriteLine("Need An Open Case");
+  }
+}
+*/
