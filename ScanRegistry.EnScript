@@ -1,0 +1,31 @@
+//This function will look for assigned file in the registry
+
+class MainClass {
+
+  void RunRegistry(CaseClass c, EntryClass e) {
+    RegistryClass reg(e);
+    RegCommandClass cmds();
+    new RegCommandClass(cmds, "Command Two", RegCommandClass::READKEY,
+      RegCommandClass::HKEY_CURRENT_USER, "", "", 0, 2);
+    RegValueClass values();
+    if (reg.Run(cmds, values)) {
+      BookmarkClass folder(c.BookmarkRoot(), "Reg", NodeClass::FOLDER);
+      BookmarkDataClass newData(folder);
+      newData.SetRoot(values);
+    }
+  }
+
+  void Main(CaseClass c) {
+    if (c) {
+      for(ItemIteratorClass iter(c); EntryClass e=iter.GetNextEntry();) {
+        if (e.Name().Compare("ntuser.dat") == 0) {
+          Console.WriteLine("Registry On " +  e.ItemPath());
+          RunRegistry(c, e);
+          break;
+        }
+      }
+    }
+    else
+      Console.WriteLine("Need An Open Case");
+  }
+}
