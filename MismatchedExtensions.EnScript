@@ -22,14 +22,24 @@ class MainClass {
     BadSigEntries()
   {}
 
+  void AddBookmark(BookmarkClass folder, EntryClass entry) {
+    BookmarkItemClass bic(folder, entry.Name(), 0);
+    bic.CopyItemData(entry);
+  }
+
   void Main(CaseClass c) {
+    BookmarkClass AliasFolder(c.BookmarkRoot(), "Wrong Extension", NodeClass::FOLDER);
+    BookmarkClass BadSigFolder(c.BookmarkRoot(), "Bad Signature", NodeClass::FOLDER);
+
     for (ItemIteratorClass i(c); EntryClass entry = i.GetNextEntry();) {
       switch(entry.SignatureResult()) {
       case ItemClass::SIG_ALIAS:
         new NameListClass(AliasEntries, entry.ItemPath());
+        AddBookmark(AliasFolder, entry);
         break;
       case ItemClass::SIG_BAD:
         new NameListClass(BadSigEntries, entry.ItemPath());
+        AddBookmark(BadSigFolder, entry);
         break;
       }
     }
