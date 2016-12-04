@@ -62,7 +62,7 @@ class MainClass {
         String filename = EvidenceDirectory +
           (EvidenceDirectory.SubString(EvidenceDirectory.GetLength() - 1, 1) == "\\" ? "" : "\\") +
           node.Name();
-        EvidenceClass ev();
+        EvidenceClass ev(null, node.Name());
         EvidencePathClass evPath(ev.EvidencePathRoot(), filename);
         EvidenceOpenClass evOpen();
         String extension = filename.GetFileExt();
