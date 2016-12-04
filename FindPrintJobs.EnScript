@@ -1,0 +1,37 @@
+//This Code will search for the files with the extention of SPL and export the file to c:\temo directory, if the file content is ANSI the code will also display that on console
+
+class MainClass {
+  void Main(CaseClass c) {
+    int notWorks;
+    uint opts;
+    String outPath = "C:\\temp\\";
+    EntryFileClass ef();
+    uint count;
+    for(ItemIteratorClass i(c); EntryClass e = i.GetNextEntry();) {
+      if (e.Extension() == "SPL") {
+        if (ef.Open(e, opts)) {
+          String contents;
+          ef.SetCodePage(CodePageClass::ANSI);
+          ef.ReadString(contents);
+          Console.WriteLine("file contents");
+          Console.WriteLine(contents);
+          Console.WriteLine("*************");
+          LocalFileClass lf();
+          String name = outPath + e.Name() + "_" + count;
+          if (lf.Open(name, FileClass::WRITE)) {
+            lf.WriteBuffer(ef);
+            Console.WriteLine("File Created:" + name);
+            count++;
+            lf.Close();
+          } else
+            notWorks++;
+          ef.Close();
+        }
+        else {
+          Console.WriteLine("Could Not Open " + e.FullPath());
+          notWorks++;
+        }
+      }
+    }
+  }
+}
