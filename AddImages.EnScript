@@ -68,6 +68,7 @@ class MainClass {
         String extension = filename.GetFileExt();
         if (extension == "img") {
           ev.SetOpenMode(EvidenceClass::OPENRAWIMAGE);
+          ev.SetImageType(EvidenceClass::RAWIMAGEDISK);
         } else if (extension == "E01") {
           ev.SetOpenMode(EvidenceClass::OPENEVIDENCEFILE);
         } else {
