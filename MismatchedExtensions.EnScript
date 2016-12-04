@@ -1,0 +1,40 @@
+class MainClass;
+
+class ShowExtensionsDialog: DialogClass {
+  MainClass Main;
+  ListEditClass AliasList;
+  ListEditClass BadSigList;
+
+  ShowExtensionsDialog(DialogClass parent, MainClass main) :
+    DialogClass(parent, "Signature Analysis Results"),
+    Main = main,
+    AliasList(this, "Known signature, wrong extension", START, START, 400, 75, 0, main.AliasEntries, 0),
+    BadSigList(this, "Known extension, unknown signature", START, NEXT, 400, 75, 0, main.BadSigEntries, 0)
+  {}
+}
+
+class MainClass {
+  NameListClass AliasEntries;
+  NameListClass BadSigEntries;
+
+  MainClass() :
+    AliasEntries(),
+    BadSigEntries()
+  {}
+
+  void Main(CaseClass c) {
+    for (ItemIteratorClass i(c); EntryClass entry = i.GetNextEntry();) {
+      switch(entry.SignatureResult()) {
+      case ItemClass::SIG_ALIAS:
+        new NameListClass(AliasEntries, entry.ItemPath());
+        break;
+      case ItemClass::SIG_BAD:
+        new NameListClass(BadSigEntries, entry.ItemPath());
+        break;
+      }
+    }
+
+    ShowExtensionsDialog diag(null, this);
+    diag.Execute();
+  }
+}
