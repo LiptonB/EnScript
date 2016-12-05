@@ -22,7 +22,9 @@ class FindEvidenceDialogClass: DialogClass {
       NameListClass FileList();
       if (DirRoot.GetListing(newPath, dir)) {
         foreach (DirectoryClass file in dir) {
-          new NameListClass(FileList, file.FullPath());
+          if (file.Extension() == "E01" || file.Extension() == "img") {
+            new NameListClass(FileList, file.FullPath());
+          }
         }
       }
       ListEdit.SetDataRoot(FileList);
@@ -53,32 +55,27 @@ class MainClass {
       foreach(NodeClass node in FileList) {
         if (node.IsSelected()) {
           Console.WriteLine("Selected File: " + node.Name());
-        }
-      }
-    }
-
-    foreach (NodeClass node in FileList) {
-      if (node.IsSelected()) {
-        String filename = EvidenceDirectory +
+          String filename = EvidenceDirectory +
           (EvidenceDirectory.SubString(EvidenceDirectory.GetLength() - 1, 1) == "\\" ? "" : "\\") +
           node.Name();
-        EvidenceClass ev(null, node.Name());
-        EvidencePathClass evPath(ev.EvidencePathRoot(), filename);
-        EvidenceOpenClass evOpen();
-        String extension = filename.GetFileExt();
-        if (extension == "img") {
-          ev.SetOpenMode(EvidenceClass::OPENRAWIMAGE);
-          ev.SetImageType(EvidenceClass::RAWIMAGEDISK);
-        } else if (extension == "E01") {
-          ev.SetOpenMode(EvidenceClass::OPENEVIDENCEFILE);
-        } else {
-          Console.WriteLine("Skipping " + filename + " - unknown extension");
-          continue;
-        }
-        if (ev.AddToCase(c, evOpen)) {
-          Console.WriteLine("Added " + filename + " to case successfully");
-        } else {
-          Console.WriteLine("Could not add " + filename + " to case");
+          EvidenceClass ev(null, node.Name());
+          EvidencePathClass evPath(ev.EvidencePathRoot(), filename);
+          EvidenceOpenClass evOpen();
+          String extension = filename.GetFileExt();
+          if (extension == "img") {
+            ev.SetOpenMode(EvidenceClass::OPENRAWIMAGE);
+            ev.SetImageType(EvidenceClass::RAWIMAGEDISK);
+          } else if (extension == "E01") {
+            ev.SetOpenMode(EvidenceClass::OPENEVIDENCEFILE);
+          } else {
+            Console.WriteLine("Skipping " + filename + " - unknown extension");
+            continue;
+          }
+          if (ev.AddToCase(c, evOpen)) {
+            Console.WriteLine("Added " + filename + " to case successfully");
+          } else {
+            Console.WriteLine("Could not add " + filename + " to case");
+          }
         }
       }
     }
